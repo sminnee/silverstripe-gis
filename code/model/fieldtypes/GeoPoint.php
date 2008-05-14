@@ -75,15 +75,26 @@ class GeoPoint extends DBField implements CompositeDBField {
 		$this->isChanged = true;
 		$this->value['x'] = $x;
 	}
+	
 	function setY($y) {
 		$this->isChanged = true;
 		$this->value['y'] = $y;
 	}
+	
 	function getX() {
 		return $this->value['x'];
 	}
+	
 	function getY() {
 		return $this->value['y'];
+	}
+	
+	function getLat() {
+		return $this->value['y'];
+	}
+	
+	function getLng() {
+		return $this->value['x'];
 	}
 	
 	function isChanged() {
