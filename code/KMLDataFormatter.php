@@ -3,6 +3,8 @@
 /**
  * DataFormatter that presents geographic data as a KML file.
  * @todo There needs to be a better way of the marketdemandmap demand data to talk to this interface.
+ * 
+ * @package gis
  */
 class KMLDataFormatter extends DataFormatter {
 	/**

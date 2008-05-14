@@ -2,6 +2,7 @@
 /**
  * Manages a {@link GeoPoint} database field.
  *
+ * @package gis
  */
 class GeoPointField extends FormField {
 	protected $xField, $yField;

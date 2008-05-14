@@ -6,6 +6,8 @@
  * @see http://dev.mysql.com/doc/refman/5.0/en/gis-class-point.html
  * @see http://www.opengis.org/docs/99-049.pdf
  * @see http://dev.mysql.com/doc/refman/5.0/en/gis-wkt-format.html
+ * 
+ * @package gis
  */
 class GeoPoint extends DBField implements CompositeDBField {
 	protected $isChanged = false;

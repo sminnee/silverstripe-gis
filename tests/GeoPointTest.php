@@ -1,4 +1,7 @@
 <?php
+/**
+ * @package gis
+ */
 class GeoPointTest extends SapphireTest {
 	
 	static $fixture_file = false;

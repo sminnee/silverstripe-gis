@@ -18,7 +18,7 @@
  * @todo Implement client-side selection when multiple results are found (through validation-errors and javasript)
  * @see http://code.google.com/apis/maps/documentation/services.html#Geocoding_Direct
  * 
- * @package geocoderfield
+ * @package gis
  */
 class GeocoderField extends TextField {
 	
@@ -107,7 +107,7 @@ class GeocoderField extends TextField {
 	protected $dataFields = array('Lat','Lng');
 	
 	public function Field() {
-		Requirements::css('geocoderfield/css/GeocoderField.css');
+		Requirements::css('gis/css/GeocoderField.css');
 		
 		$html = parent::Field();
 		
