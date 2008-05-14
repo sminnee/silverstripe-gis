@@ -1,0 +1,18 @@
+------------------------------
+GIS (Geospatial Information System) Module
+------------------------------
+
+April 2008
+
+REQUIREMENTS
+------------
+At least SilverStripe 2.3
+
+DOCUMENTATION
+-------------
+http://doc.silverstripe.com/doku.php?id=modules:gis
+
+INSTALL
+-------
+
+1) Copy the modules directory into your SilverStripe webroot
