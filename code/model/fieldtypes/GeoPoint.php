@@ -1,7 +1,7 @@
 <?php
 /**
  * GIS Point class with zero-dimensional geometry.
- * Usually used to store a set of coordinates (latitude/longitude).
+ * Usually used to store a set of coordinates (x=latitude/y=longitude).
  * 
  * @see http://dev.mysql.com/doc/refman/5.0/en/gis-class-point.html
  * @see http://www.opengis.org/docs/99-049.pdf
