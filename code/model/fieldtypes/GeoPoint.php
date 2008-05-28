@@ -97,6 +97,14 @@ class GeoPoint extends DBField implements CompositeDBField {
 		return $this->value['x'];
 	}
 	
+	function setLat($lat) {
+		$this->value['y'] = $lat;
+	}
+	
+	function setLng($lng) {
+		$this->value['x'] = $lng;
+	}
+	
 	function isChanged() {
 		return $this->isChanged;
 	}
