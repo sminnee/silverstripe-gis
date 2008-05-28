@@ -16,44 +16,36 @@
  */
 class LatLngBoundsFilter extends BoundsFilter {
 	
-	public function apply(SQLQuery $query) {
-		if(
-			!is_array($this->value) 
-			|| !array_key_exists('ne',$this->value) 
-			|| !array_key_exists('sw',$this->value)
-		) return false;
+	/**
+	 * Get full set of 4 coordinates
+	 * out of a northeast and southwest set of coordinates
+	 * marking the boundary box.
+	 *
+	 * @param array $bounds
+	 * @return array
+	 */
+	public function getFullCoordinates($bounds) {
+		if(!$this->isValid($bounds)) return false;
 		
-		$sw = explode(',',$this->value['sw']);
-		$ne = explode(',',$this->value['ne']);
-		if(count($sw) != 2 || count($ne) != 2) return false;
+		$coords = array();
+		
+		$sw = explode(',',$bounds['sw']);
+		$ne = explode(',',$bounds['ne']);
 		
 		// HACK
-		$lng_sw = ($sw[0] < 0 || $sw[0] > 180) ? 180 : (float)$sw[0];
-		$lat_sw = (float)$sw[1];
+		$coords['sw']['x'] = ($sw[0] < 0 || $sw[0] > 180) ? 180 : (float)$sw[0];
+		$coords['sw']['y'] = (float)$sw[1];
 
-		$lng_nw = ($sw[0] < 0 || $sw[0] > 180) ? 180 : (float)$sw[0];
-		$lat_nw = (float)$ne[1];
+		$coords['nw']['x'] = ($sw[0] < 0 || $sw[0] > 180) ? 180 : (float)$sw[0];
+		$coords['nw']['y'] = (float)$ne[1];
 		
-		$lng_ne = ($ne[0] < 0 || $ne[0] > 180) ? 180 : (float)$ne[0];
-		$lat_ne = (float)$ne[1];
+		$coords['ne']['x'] = ($ne[0] < 0 || $ne[0] > 180) ? 180 : (float)$ne[0];
+		$coords['ne']['y'] = (float)$ne[1];
 		
-		$lng_se = ($ne[0] < 0 || $ne[0] > 180) ? 180 : (float)$ne[0];
-		$lat_se = (float)$sw[1];
+		$coords['se']['x'] = ($ne[0] < 0 || $ne[0] > 180) ? 180 : (float)$ne[0];
+		$coords['se']['y'] = (float)$sw[1];
 		
-		
-		$query = $this->applyRelation($query);
-		$where = "MBRContains(
-			GeomFromText('Polygon((
-				$lng_sw $lat_sw,
-				$lng_nw $lat_nw,
-				$lng_ne $lat_ne,
-				$lng_se $lat_se,
-				$lng_sw $lat_sw
-			))'),
-			{$this->getName()}
-		)";
-		
-		return $query->where($where);
+		return $coords;
 	}
 	
 }
