@@ -13,7 +13,15 @@ class KMLDataFormatter extends DataFormatter {
 	static $api_base = "api/v1/";
 	
 	public function supportedExtensions() {
-		return array('kml');
+		return array(
+			'kml'
+		);
+	}
+
+	public function supportedMimeTypes() {
+		return array(
+			'application/vnd.google-earth.kml+xml',
+		);
 	}
 	
 	public function convertDataObject(DataObjectInterface $obj) {
