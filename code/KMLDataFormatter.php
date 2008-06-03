@@ -12,6 +12,8 @@ class KMLDataFormatter extends DataFormatter {
 	 */
 	static $api_base = "api/v1/";
 	
+	protected $outputContentType = 'application/vnd.google-earth.kml+xml';
+	
 	public function supportedExtensions() {
 		return array(
 			'kml'
