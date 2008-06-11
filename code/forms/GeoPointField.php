@@ -16,10 +16,10 @@ class GeoPointField extends FormField {
 	}
 	
 	function Field() {
-		return "<span class=\"fieldgroup\">" .
-			$this->xField->Title() . ": " . $this->xField->Field() . " " .
-			$this->yField->Title() . ": " . $this->yField->Field() . 
-			"</span>";
+		return "<div class=\"fieldgroup\">" .
+			"<div class=\"fieldgroupField\">" . $this->xField->SmallFieldHolder() . "</div>" . 
+			"<div class=\"fieldgroupField\">" . $this->yField->SmallFieldHolder() . "</div>" . 
+		"</div>";
 	}
 	
 	function setValue($val) {
