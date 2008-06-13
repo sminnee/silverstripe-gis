@@ -9,8 +9,7 @@
  * 
  * @package gis
  */
-class GeoPoint extends DBField implements CompositeDBField {
-	protected $isChanged = false;
+class GeoPoint extends GeoDBField implements CompositeDBField {
 	
 	public function from_x_y($x, $y) {
 		$g = new GeoPoint(null);
@@ -103,10 +102,6 @@ class GeoPoint extends DBField implements CompositeDBField {
 	
 	function setLng($lng) {
 		$this->value['x'] = $lng;
-	}
-	
-	function isChanged() {
-		return $this->isChanged;
 	}
 	
 	function requireField() {
