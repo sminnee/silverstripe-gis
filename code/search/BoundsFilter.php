@@ -10,8 +10,7 @@
  * 
  * @author Ingo Schommer, Silverstripe Ltd. (<firstname>@silverstripe.com)
  *
- * @package sapphire
- * @subpackage search
+ * @package gis
  */
 class BoundsFilter extends SearchFilter {
 	

@@ -27,7 +27,7 @@ class GeoPointTest extends SapphireTest {
 		$pointObj = new GeoPointTest_Obj();
 		$pointObj->Point->X = 2;
 		$pointObj->Point->Y = 3;
-
+		
 		$this->assertEquals("Point", $pointObj->Point->Name);
 		$this->assertEquals("GeoPoint", $pointObj->Point->class);
 		$this->assertEquals(2, $pointObj->Point->X);
@@ -125,12 +125,6 @@ class GeoPointTest extends SapphireTest {
 		$pointObj->Point->setValue(array('x' => 3, 'y' => 4));
 		$this->assertEquals(3, $pointObj->Point->X);
 		$this->assertEquals(4, $pointObj->Point->Y);
-
-		/* Or a comma-separated pair */
-		$pointObj->Point->setValue(" 5, 6 ");
-		$this->assertEquals(5, $pointObj->Point->X);
-		$this->assertEquals(6, $pointObj->Point->Y);
-		
 	}
 }
 

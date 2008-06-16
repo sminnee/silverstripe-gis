@@ -11,8 +11,7 @@
  *
  * @todo support for boundaries across the antimeridian (international dateline)
  * 
- * @package sapphire
- * @subpackage search
+ * @package gis
  */
 class LatLngBoundsFilter extends BoundsFilter {
 	
