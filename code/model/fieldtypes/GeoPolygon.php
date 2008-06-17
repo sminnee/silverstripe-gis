@@ -129,7 +129,7 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 		if($rings) foreach($rings as $ring) {
 			$xml .= "<ring>";
 			foreach($ring as $coordPair) {
-				$xml .= '<point x="' . Convert::raw2xml($coordPair[0]) . '" y="' . Convert::raw2xml($coordPair[0]) . '" />';
+				$xml .= '<point x="' . Convert::raw2xml($coordPair[0]) . '" y="' . Convert::raw2xml($coordPair[1]) . '" />';
 			}
 			$xml .= "</ring>";
 		}
