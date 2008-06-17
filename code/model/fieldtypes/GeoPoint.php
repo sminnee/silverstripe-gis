@@ -193,7 +193,7 @@ class GeoPoint extends GeoDBField implements CompositeDBField {
 		return Convert::raw2json($this->getCoords());
 	}
 	function toXML() {
-		return "<$this->Name x=\"" . Convert::raw2xml($this->X) . "\" y=\"" . Convert::raw2xml($this->Y) . "\" />";
+		return "<$this->Name x=\"" . Convert::raw2xml($this->X) . "\" y=\"" . Convert::raw2xml($this->Y) . "\" srid=\"" . Convert::raw2att($this->srid) . "\" />";
 	}
 
 	public function scaffoldFormField($title = null) {

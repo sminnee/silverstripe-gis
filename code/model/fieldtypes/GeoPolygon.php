@@ -113,7 +113,7 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 	 * Determines if the passed string is in valid "Well-known Text" format.
 	 *
 	 * @param string $wktString
-	 */
+	 */<
 	public static function is_valid_wkt($wktString) {
 		if(!is_string($wktString)) return false;
 		return preg_match('/^POLYGON\(([a-zA-Z0-9.,]*)\)$/', $wktString);
@@ -124,7 +124,7 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 	}
 	
 	public function toXML() {
-		$xml = "<$this->Name>";
+		$xml = "<$this->Name srid=\"" . Convert::raw2att($this->srid) . "\">";
 		$rings = $this->getRings();
 		if($rings) foreach($rings as $ring) {
 			$xml .= "<ring>";
