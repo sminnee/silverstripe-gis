@@ -88,7 +88,7 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 	 **/
  	public function getRings() {
 		$rings = array();
-		
+
 		preg_match('/^POLYGON\((.*)\)$/', $this->wkt, $wktMatches);
 		if(!$wktMatches) return false;
 		
@@ -123,8 +123,23 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 		return Convert::raw2json($this->getRings());
 	}
 	
+	public function toXML() {
+		$xml = "<$this->Name>";
+		$rings = $this->getRings();
+		if($rings) foreach($rings as $ring) {
+			$xml .= "<ring>";
+			foreach($ring as $coordPair) {
+				$xml .= '<point x="' . Convert::raw2xml($coordPair[0]) . '" y="' . Convert::raw2xml($coordPair[0]) . '" />';
+			}
+			$xml .= "</ring>";
+		}
+		$xml .= "</$this->Name>";
+		
+		return $xml;
+	}
+	
 	public function debug() {
-		return $this->name . '(' . $this->value . ')';
+		return $this->name . '(' . $this->wkt . ')';
 	}
 	
 }
