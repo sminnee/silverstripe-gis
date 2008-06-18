@@ -120,17 +120,31 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 	}
 	
 	public function toJSON() {
-		return Convert::raw2json($this->getRings());
+		$arr = array();
+		$arr['rings'] = array();
+		$rings = $this->getRings();
+		foreach($rings as $ring) {
+			$arr['rings'][] = array(
+				'points' => $ring,
+			);
+		}
+		
+		return Convert::raw2json($arr);
 	}
 	
 	public function toXML() {
 		$xml = "<$this->Name srid=\"" . Convert::raw2att($this->srid) . "\">";
 		$rings = $this->getRings();
 		if($rings) foreach($rings as $ring) {
+			$inverseRing = array();
+			foreach($ring as $point) $inverseRing[] = array_reverse($point);
+			list($encodedPoints, $encodedLevels, $encodedLiteral) = $polylineEncoder->dpEncode($inverseRing);
 			$xml .= "<ring>";
+			$xml .= "<points>";
 			foreach($ring as $coordPair) {
 				$xml .= '<point x="' . Convert::raw2xml($coordPair[0]) . '" y="' . Convert::raw2xml($coordPair[1]) . '" />';
 			}
+			$xml .= "</points>";
 			$xml .= "</ring>";
 		}
 		$xml .= "</$this->Name>";
