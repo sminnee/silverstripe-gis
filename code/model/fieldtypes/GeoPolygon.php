@@ -138,7 +138,6 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 		if($rings) foreach($rings as $ring) {
 			$inverseRing = array();
 			foreach($ring as $point) $inverseRing[] = array_reverse($point);
-			list($encodedPoints, $encodedLevels, $encodedLiteral) = $polylineEncoder->dpEncode($inverseRing);
 			$xml .= "<ring>";
 			$xml .= "<points>";
 			foreach($ring as $coordPair) {
