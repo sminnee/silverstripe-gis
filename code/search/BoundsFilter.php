@@ -19,7 +19,7 @@ class BoundsFilter extends SearchFilter {
 		if(!$coords) return false;
 		
 		$query = $this->applyRelation($query);
-		$where = "MBRContains(
+		$where = "MBRIntersects(
 			GeomFromText('Polygon((
 				{$coords['sw']['x']} {$coords['sw']['y']},
 				{$coords['nw']['x']} {$coords['nw']['y']},
