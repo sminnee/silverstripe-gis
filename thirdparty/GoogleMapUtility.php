@@ -6,12 +6,12 @@ class GoogleMapUtility {
     public static function fromXYToLatLng($point,$zoom) {
         $scale = (1 << ($zoom)) * GoogleMapUtility::TILE_SIZE;
         
-        return new Point(
+        return new GoogleMapPoint(
             (int) ($normalised->x * $scale),
             (int)($normalised->y * $scale)
         );
     
-        return new Point(
+        return new GoogleMapPoint(
             $pixelCoords->x % GoogleMapUtility::TILE_SIZE, 
             $pixelCoords->y % GoogleMapUtility::TILE_SIZE
         );
@@ -25,7 +25,7 @@ class GoogleMapUtility {
     
     public static function getPixelOffsetInTile($lat,$lng,$zoom) {
         $pixelCoords = GoogleMapUtility::toZoomedPixelCoords($lat, $lng, $zoom);
-        return new Point(
+        return new GoogleMapPoint(
             $pixelCoords->x % GoogleMapUtility::TILE_SIZE, 
             $pixelCoords->y % GoogleMapUtility::TILE_SIZE
         );
@@ -47,7 +47,7 @@ class GoogleMapUtility {
 
         $latHeight = $topLat - $bottomLat;
 
-        return new Boundary($lng, $bottomLat, $lngWidth, $latHeight);
+        return new GoogleMapBoundary($lng, $bottomLat, $lngWidth, $latHeight);
     }
 
     public static function toMercatorCoords($lat, $lng) {
@@ -57,7 +57,7 @@ class GoogleMapUtility {
 
         $lng /= 360;
         $lat = asinh(tan(deg2rad($lat)))/M_PI/2;
-        return new Point($lng, $lat);
+        return new GoogleMapPoint($lng, $lat);
     }
 
     public static function toNormalisedMercatorCoords($point) {
@@ -71,7 +71,7 @@ class GoogleMapUtility {
             GoogleMapUtility::toMercatorCoords($lat, $lng)
         );
         $scale = 1 << ($zoom);
-        return new Point((int)($normalised->x * $scale), (int)($normalised->y * $scale));
+        return new GoogleMapPoint((int)($normalised->x * $scale), (int)($normalised->y * $scale));
     }
 
     public static function toZoomedPixelCoords($lat, $lng, $zoom) {
@@ -79,14 +79,14 @@ class GoogleMapUtility {
             GoogleMapUtility::toMercatorCoords($lat, $lng)
         );
         $scale = (1 << ($zoom)) * GoogleMapUtility::TILE_SIZE;
-        return new Point(
+        return new GoogleMapPoint(
             (int) ($normalised->x * $scale), 
             (int)($normalised->y * $scale)
         );
     }
 }
 
-class Point {
+class GoogleMapPoint {
      public $x,$y;
      function __construct($x,$y) {
           $this->x = $x;
@@ -98,7 +98,7 @@ class Point {
      }
 }
 
-class Boundary {
+class GoogleMapBoundary {
      public $x,$y,$width,$height;
      function __construct($x,$y,$width,$height) {
           $this->x = $x;
