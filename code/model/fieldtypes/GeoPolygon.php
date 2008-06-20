@@ -28,11 +28,6 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 		return $obj;
 	}
 	
-	public function setAsWKT($wktString) {
-		$this->wkt = $wktString;
-		$this->isChanged = true;
-	}
-
 	/**
 	 * Set one or more rings as an array,
 	 * containing numeric arrays for each point
@@ -65,11 +60,6 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 		} else {
 			$manipulation['fields'][$this->name] = $this->nullValue();
 		}
-	}
-	
-	function addToQuery(&$query) {
-		parent::addToQuery($query);
-		$query->select[] = "AsText({$this->name}) AS {$this->name}_AsText";
 	}
 	
 	/**

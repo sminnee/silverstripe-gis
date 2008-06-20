@@ -51,6 +51,11 @@ class GeoDBField extends DBField implements CompositeDBField {
 	
 	public function requireField() {}
 	
+	function addToQuery(&$query) {
+		parent::addToQuery($query);
+		$query->select[] = "AsText({$this->name}) AS {$this->name}_AsText";
+	}
+	
 	public function setValue($value, $record = null) {
 		// If we have an enter database record, look inside that
 		// only if the column exists (and we're not dealing with a newly created instance)

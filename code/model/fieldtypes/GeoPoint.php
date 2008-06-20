@@ -170,11 +170,6 @@ class GeoPoint extends GeoDBField implements CompositeDBField {
 		}
 	}
 	
-	function addToQuery(&$query) {
-		parent::addToQuery($query);
-		$query->select[] = "AsText({$this->name}) AS {$this->name}_AsText";
-	}
-	
 	/**
 	 * Determines if the passed string is in valid "Well-known Text" format.
 	 *
