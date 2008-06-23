@@ -250,7 +250,7 @@ class TileRenderer extends Object {
 				$points[$i+1][0],
 				$points[$i+1][1],
 				$color,
-				10
+				3
 			);
 		}
 	}
