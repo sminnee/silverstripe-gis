@@ -90,6 +90,11 @@ class TileRenderer extends Object {
 		'png'
 	);
 	
+	/**
+	 * Renders some debug strings into each images.
+	 */
+	public $debug = false;
+	
 	public function init() {
 		$this->im = imagecreate($this->tileSize, $this->tileSize);
         $blank = $this->hexColorToIdentifier($this->backgroundColorHex);
@@ -173,8 +178,8 @@ class TileRenderer extends Object {
 
 		ob_start(); // capture the output
 
-		if (!count($this->polygons) && !count($this->polylines) && !count($this->points)) {
-		        readfile(Director::baseFolder() . '/' . $this->emptyFilePath);
+		if (!$this->debug && !count($this->polygons) && !count($this->polylines) && !count($this->points)) {
+			readfile(Director::baseFolder() . '/' . $this->emptyFilePath);
 		} else {
 				// render all polygons
 		        foreach($this->polygons as $polygon) $this->drawPolygon($polygon);
@@ -184,13 +189,21 @@ class TileRenderer extends Object {
 				
 				// render all points
 				foreach($this->points as $point) $this->drawPoint($point);
+				
+				if($this->debug) {
+					$textcolor = imagecolorallocate($this->im, 0, 1, 0);
+					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-30, count($this->polygons) . " polygons", $textcolor);
+					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-20, count($this->polylines) . " polylines", $textcolor);
+					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-10, count($this->points) . " points", $textcolor);
+					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-0, "Tile: {$this->pixelX}-{$this->pixelY}-{$this->zoom}", $textcolor);
+				}
 					
 				$blank = $this->hexColorToIdentifier($this->backgroundColorHex);
 		        imagecolortransparent($this->im, $blank);
 		        imagegif($this->im);
 		        imagedestroy($this->im);
 		}
-		
+
 		$imagedata = ob_get_clean();
 		
 		if($this->cacheTiles) {
@@ -225,14 +238,17 @@ class TileRenderer extends Object {
 	protected function drawPolyline($polyline) {
 		$pointlist = $this->lngLatToPixels($polyline['data']);
 		$points = array_chunk($pointlist, 2);
+		$color = $this->hexColorToIdentifier($polyline['spec']['color']);
+
 		for($i=0; $i<count($points)-1; $i++) {
-			imageline(
+			$this->imagelinethick(
 				$this->im,
 				$points[$i][0],
 				$points[$i][1],
 				$points[$i+1][0],
 				$points[$i+1][1],
-				$this->hexColorToIdentifier($polyline['spec']['color'])
+				$color,
+				10
 			);
 		}
 	}
@@ -262,6 +278,26 @@ class TileRenderer extends Object {
 		}
 		
 		return $pointlist;
+	}
+	
+	function imagelinethick($image, $x1, $y1, $x2, $y2, $color, $thick = 1) {
+		if ($thick == 1) {
+	        return imageline($image, $x1, $y1, $x2, $y2, $color);
+	    }
+	    $t = $thick / 2 - 0.5;
+	    if ($x1 == $x2 || $y1 == $y2) {
+	        return imagefilledrectangle($image, round(min($x1, $x2) - $t), round(min($y1, $y2) - $t), round(max($x1, $x2) + $t), round(max($y1, $y2) + $t), $color);
+	    }
+	    $k = ($y2 - $y1) / ($x2 - $x1); //y = kx + q
+	    $a = $t / sqrt(1 + pow($k, 2));
+	    $points = array(
+	        round($x1 - (1+$k)*$a), round($y1 + (1-$k)*$a),
+	        round($x1 - (1-$k)*$a), round($y1 - (1+$k)*$a),
+	        round($x2 + (1+$k)*$a), round($y2 - (1-$k)*$a),
+	        round($x2 + (1-$k)*$a), round($y2 + (1+$k)*$a),
+	    );
+	    imagefilledpolygon($image, $points, 4, $color);
+	    return imagepolygon($image, $points, 4, $color);
 	}
 	
 }
