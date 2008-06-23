@@ -97,8 +97,10 @@ class TileRenderer extends Object {
 	
 	public function init() {
 		$this->im = imagecreate($this->tileSize, $this->tileSize);
-        $blank = $this->hexColorToIdentifier($this->backgroundColorHex);
-        imagefilledrectangle($this->im, 0, 0, $this->tileSize, $this->tileSize, $blank );
+        
+		// needs to be a unique reference for later transparency allocation
+		$this->colorBlank = $this->hexColorToIdentifier($this->backgroundColorHex);
+        imagefilledrectangle($this->im, 0, 0, $this->tileSize, $this->tileSize, $this->colorBlank);
 	}
 	
 	public function addPolygon($points, $spec = null) {
@@ -191,15 +193,15 @@ class TileRenderer extends Object {
 				foreach($this->points as $point) $this->drawPoint($point);
 				
 				if($this->debug) {
-					$textcolor = imagecolorallocate($this->im, 0, 1, 0);
+					$textcolor = imagecolorallocate($this->im, 0, 0, 0);
 					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-30, count($this->polygons) . " polygons", $textcolor);
 					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-20, count($this->polylines) . " polylines", $textcolor);
 					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-10, count($this->points) . " points", $textcolor);
 					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-0, "Tile: {$this->pixelX}-{$this->pixelY}-{$this->zoom}", $textcolor);
 				}
 					
-				$blank = $this->hexColorToIdentifier($this->backgroundColorHex);
-		        imagecolortransparent($this->im, $blank);
+				//$this->blank = $this->hexColorToIdentifier($this->backgroundColorHex);
+		        imagecolortransparent($this->im, $this->colorBlank);
 		        imagegif($this->im);
 		        imagedestroy($this->im);
 		}
