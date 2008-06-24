@@ -95,12 +95,16 @@ class TileRenderer extends Object {
 	 */
 	public $debug = false;
 	
+	protected $colors = array();
+	
 	public function init() {
+		ini_set('memory_limit', '512M');
+		
 		$this->im = imagecreate($this->tileSize, $this->tileSize);
         
 		// needs to be a unique reference for later transparency allocation
-		$this->colorBlank = $this->hexColorToIdentifier($this->backgroundColorHex);
-        imagefilledrectangle($this->im, 0, 0, $this->tileSize, $this->tileSize, $this->colorBlank);
+		$this->colors[$this->backgroundColorHex] = $this->hexColorToIdentifier($this->backgroundColorHex);
+        imagefilledrectangle($this->im, 0, 0, $this->tileSize, $this->tileSize, $this->colors[$this->backgroundColorHex]);
 	}
 	
 	public function addPolygon($points, $spec = null) {
@@ -183,14 +187,15 @@ class TileRenderer extends Object {
 		if (!$this->debug && !count($this->polygons) && !count($this->polylines) && !count($this->points)) {
 			readfile(Director::baseFolder() . '/' . $this->emptyFilePath);
 		} else {
+
 				// render all polygons
 		        foreach($this->polygons as $polygon) $this->drawPolygon($polygon);
 		
 				// render all polylines
-				foreach($this->polylines as $polyline) $this->drawPolyline($polyline);
+				//foreach($this->polylines as $polyline) $this->drawPolyline($polyline);
 				
 				// render all points
-				foreach($this->points as $point) $this->drawPoint($point);
+				//foreach($this->points as $point) $this->drawPoint($point);
 				
 				if($this->debug) {
 					$textcolor = imagecolorallocate($this->im, 0, 0, 0);
@@ -199,15 +204,15 @@ class TileRenderer extends Object {
 					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-10, count($this->points) . " points", $textcolor);
 					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-0, "Tile: {$this->pixelX}-{$this->pixelY}-{$this->zoom}", $textcolor);
 				}
-					
+								
 				//$this->blank = $this->hexColorToIdentifier($this->backgroundColorHex);
-		        imagecolortransparent($this->im, $this->colorBlank);
+		        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
 		        imagegif($this->im);
 		        imagedestroy($this->im);
 		}
 
 		$imagedata = ob_get_clean();
-		
+
 		if($this->cacheTiles) {
 			Filesystem::makeFolder($this->getAbsoluteCachePath());
 			file_put_contents($this->getAbsoluteCachePath() . "/" . $this->getFilename(), $imagedata);
@@ -229,18 +234,27 @@ class TileRenderer extends Object {
 	}
 	
 	protected function drawPolygon($polygon){
+		$hexColor = $polygon['spec']['color'];
+		if(!isset($this->colors[$hexColor])) {
+			$this->colors[$hexColor] = $this->hexColorToIdentifier($hexColor);
+		}
+		
 		imagefilledpolygon(
 			$this->im, 
 			$this->lngLatToPixels($polygon['data']), 
 			count($polygon['data']), 
-			$this->hexColorToIdentifier($polygon['spec']['color'])
+			$this->colors[$hexColor]
 		);
 	}
 	
 	protected function drawPolyline($polyline) {
 		$pointlist = $this->lngLatToPixels($polyline['data']);
 		$points = array_chunk($pointlist, 2);
-		$color = $this->hexColorToIdentifier($polyline['spec']['color']);
+		
+		$hexColor = $polyline['spec']['color'];
+		if(!isset($this->colors[$hexColor])) {
+			$this->colors[$hexColor] = $this->hexColorToIdentifier($hexColor);
+		}
 
 		for($i=0; $i<count($points)-1; $i++) {
 			$this->imagelinethick(
@@ -249,14 +263,14 @@ class TileRenderer extends Object {
 				$points[$i][1],
 				$points[$i+1][0],
 				$points[$i+1][1],
-				$color,
+				$this->colors[$hexColor],
 				3
 			);
 		}
 	}
 	
 	protected function drawPoint($point) {
-		
+		die('TileRenderer->drawPoint() - Not implemented yet');
 	}
 	
 	protected function hexColorToIdentifier($hexColor) {
