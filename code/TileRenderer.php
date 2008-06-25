@@ -192,10 +192,10 @@ class TileRenderer extends Object {
 		        foreach($this->polygons as $polygon) $this->drawPolygon($polygon);
 		
 				// render all polylines
-				//foreach($this->polylines as $polyline) $this->drawPolyline($polyline);
+				foreach($this->polylines as $polyline) $this->drawPolyline($polyline);
 				
 				// render all points
-				//foreach($this->points as $point) $this->drawPoint($point);
+				foreach($this->points as $point) $this->drawPoint($point);
 				
 				if($this->debug) {
 					$textcolor = imagecolorallocate($this->im, 0, 0, 0);
