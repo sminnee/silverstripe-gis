@@ -97,6 +97,10 @@ class TileRenderer extends Object {
 	
 	protected $colors = array();
 	
+	public static $default_polyline_thickness = 3;
+	
+	public static $defaut_point_diameter = 5;
+	
 	public function init() {
 		ini_set('memory_limit', '512M');
 		
@@ -123,7 +127,7 @@ class TileRenderer extends Object {
 	
 	public function addPoint($point, $spec = null) {
 		$this->points[] = array(
-			'data' => $points,
+			'data' => $point,
 			'spec' => array_merge($this->defaultSpec, (array)$spec)
 		);
 	}
@@ -264,13 +268,30 @@ class TileRenderer extends Object {
 				$points[$i+1][0],
 				$points[$i+1][1],
 				$this->colors[$hexColor],
-				3
+				self::$default_polyline_thickness
 			);
 		}
 	}
 	
 	protected function drawPoint($point) {
-		die('TileRenderer->drawPoint() - Not implemented yet');
+		$pointlist = $this->lngLatToPixels(array(array(
+			$point['data']['x'],
+			$point['data']['y']
+		)));
+		
+		$hexColor = $point['spec']['color'];
+		if(!isset($this->colors[$hexColor])) {
+			$this->colors[$hexColor] = $this->hexColorToIdentifier($hexColor);
+		}
+		
+		imageellipse(
+			$this->im,
+			$pointlist[0],
+			$pointlist[1],
+			self::$defaut_point_diameter,
+			self::$defaut_point_diameter,
+			$this->colors[$hexColor]
+		);
 	}
 	
 	protected function hexColorToIdentifier($hexColor) {
@@ -283,7 +304,7 @@ class TileRenderer extends Object {
 		// points contain simple array of x,y,x,y,...
 		$pointlist = array();
 		$pointcount = 0;
-		
+
 		foreach($lngLatPoints as $coords) {
 			$lng = $coords[0];
 			$lat = $coords[1];
