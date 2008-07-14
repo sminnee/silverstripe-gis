@@ -193,7 +193,11 @@ class TileRenderer extends Object {
 		} else {
 
 				// render all polygons
-		        foreach($this->polygons as $polygon) $this->drawPolygon($polygon);
+				$i = 0;
+		        foreach($this->polygons as $polygon) {
+					$this->drawPolygon($polygon);			
+					$i++;
+				}	
 		
 				// render all polylines
 				foreach($this->polylines as $polyline) $this->drawPolyline($polyline);
@@ -242,7 +246,6 @@ class TileRenderer extends Object {
 		if(!isset($this->colors[$hexColor])) {
 			$this->colors[$hexColor] = $this->hexColorToIdentifier($hexColor);
 		}
-		
 		imagefilledpolygon(
 			$this->im, 
 			$this->lngLatToPixels($polygon['data']), 
@@ -301,6 +304,8 @@ class TileRenderer extends Object {
 	}
 	
 	protected function lngLatToPixels($lngLatPoints) {
+		GoogleMapUtility::$TILE_SIZE = $this->tileSize;
+		
 		// points contain simple array of x,y,x,y,...
 		$pointlist = array();
 		$pointcount = 0;

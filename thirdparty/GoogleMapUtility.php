@@ -1,10 +1,10 @@
 <?php
 
 class GoogleMapUtility {
-    const TILE_SIZE = 256;
+    static $TILE_SIZE = 256;
 
     public static function fromXYToLatLng($point,$zoom) {
-        $scale = (1 << ($zoom)) * GoogleMapUtility::TILE_SIZE;
+        $scale = (1 << ($zoom)) * GoogleMapUtility::$TILE_SIZE;
         
         return new GoogleMapPoint(
             (int) ($normalised->x * $scale),
@@ -12,8 +12,8 @@ class GoogleMapUtility {
         );
     
         return new GoogleMapPoint(
-            $pixelCoords->x % GoogleMapUtility::TILE_SIZE, 
-            $pixelCoords->y % GoogleMapUtility::TILE_SIZE
+            $pixelCoords->x % GoogleMapUtility::$TILE_SIZE, 
+            $pixelCoords->y % GoogleMapUtility::$TILE_SIZE
         );
     }
     
@@ -26,8 +26,8 @@ class GoogleMapUtility {
     public static function getPixelOffsetInTile($lat,$lng,$zoom) {
         $pixelCoords = GoogleMapUtility::toZoomedPixelCoords($lat, $lng, $zoom);
         return new GoogleMapPoint(
-            $pixelCoords->x % GoogleMapUtility::TILE_SIZE, 
-            $pixelCoords->y % GoogleMapUtility::TILE_SIZE
+            $pixelCoords->x % GoogleMapUtility::$TILE_SIZE, 
+            $pixelCoords->y % GoogleMapUtility::$TILE_SIZE
         );
     }
 
@@ -78,7 +78,7 @@ class GoogleMapUtility {
         $normalised = GoogleMapUtility::toNormalisedMercatorCoords(
             GoogleMapUtility::toMercatorCoords($lat, $lng)
         );
-        $scale = (1 << ($zoom)) * GoogleMapUtility::TILE_SIZE;
+        $scale = (1 << ($zoom)) * GoogleMapUtility::$TILE_SIZE;
         return new GoogleMapPoint(
             (int) ($normalised->x * $scale), 
             (int)($normalised->y * $scale)
