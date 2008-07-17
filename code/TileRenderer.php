@@ -56,7 +56,15 @@ class TileRenderer extends Object {
 	 */
 	public $cacheTiles = true;
 	
+	/**
+	 * The tile size in pixels.  Tiles must be square
+	 */
 	public $tileSize = 256;
+	
+	/**
+	 * Render offset in pixels, X & Y.  This can be used if you are planning on cropping the image after render
+	 */
+	private $offsetX = 0, $offsetY = 0;
 	
 	public $categoryID;
 	
@@ -104,7 +112,11 @@ class TileRenderer extends Object {
 	public function init() {
 		ini_set('memory_limit', '512M');
 		
-		$this->im = imagecreate($this->tileSize, $this->tileSize);
+		// We over-render a pixel line on all sides to side-step bugs in imagefilledpolygon
+		$this->im = imagecreate($this->tileSize + 2, $this->tileSize + 2);
+		// These update the render to render everything down and to the right by 1 pxel, so that we can crop without mucking up the layout of the map
+		$this->offsetX = 1;
+		$this->offsetY = 1;
         
 		// needs to be a unique reference for later transparency allocation
 		$this->colors[$this->backgroundColorHex] = $this->hexColorToIdentifier($this->backgroundColorHex);
@@ -214,6 +226,7 @@ class TileRenderer extends Object {
 				}
 								
 				//$this->blank = $this->hexColorToIdentifier($this->backgroundColorHex);
+				$this->cropimage(1,1,$this->tileSize, $this->tileSize);
 		        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
 		        imagegif($this->im);
 		        imagedestroy($this->im);
@@ -227,6 +240,15 @@ class TileRenderer extends Object {
 		}
 		
 		return $imagedata;
+	}
+	
+	/**
+	 * Crop the internal image to the given region
+	 */
+	protected function cropimage($x, $y, $w, $h) {
+		$im2 = imagecreate($w, $h);
+		imagecopy($im2, $this->im, 0,0, $x, $y, $w, $h);
+		$this->im = $im2;
 	}
 	
 	protected function getFilename() {
@@ -314,8 +336,8 @@ class TileRenderer extends Object {
 			$lng = $coords[0];
 			$lat = $coords[1];
 			$relativePixelPoint = GoogleMapUtility::toZoomedPixelCoords($lat, $lng, $this->zoom);
-			$pointlist[] = $absolutePixelX = $relativePixelPoint->x - ($this->tileSize * $this->pixelX);
-			$pointlist[] = $absolutePixelY = $relativePixelPoint->y - ($this->tileSize * $this->pixelY);
+			$pointlist[] = $absolutePixelX = $relativePixelPoint->x - ($this->tileSize * $this->pixelX) + $this->offsetX;
+			$pointlist[] = $absolutePixelY = $relativePixelPoint->y - ($this->tileSize * $this->pixelY) + $this->offsetY;
 			$pointcount++;
 		}
 		
@@ -327,6 +349,7 @@ class TileRenderer extends Object {
 	        return imageline($image, $x1, $y1, $x2, $y2, $color);
 	    }
 	    $t = $thick / 2 - 0.5;
+
 	    if ($x1 == $x2 || $y1 == $y2) {
 	        return imagefilledrectangle($image, round(min($x1, $x2) - $t), round(min($y1, $y2) - $t), round(max($x1, $x2) + $t), round(max($y1, $y2) + $t), $color);
 	    }
