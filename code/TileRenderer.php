@@ -111,12 +111,13 @@ class TileRenderer extends Object {
 	
 	public function init() {
 		ini_set('memory_limit', '512M');
+
+		// These update the render to render everything down and to the right by 1 pxel, so that we can crop without mucking up the layout of the map
+		$this->offsetX = 2;
+		$this->offsetY = 2;
 		
 		// We over-render a pixel line on all sides to side-step bugs in imagefilledpolygon
-		$this->im = imagecreate($this->tileSize + 2, $this->tileSize + 2);
-		// These update the render to render everything down and to the right by 1 pxel, so that we can crop without mucking up the layout of the map
-		$this->offsetX = 1;
-		$this->offsetY = 1;
+		$this->im = imagecreate($this->tileSize + ($this->offsetX*2), $this->tileSize + ($this->offsetY*2));
         
 		// needs to be a unique reference for later transparency allocation
 		$this->colors[$this->backgroundColorHex] = $this->hexColorToIdentifier($this->backgroundColorHex);
@@ -226,8 +227,9 @@ class TileRenderer extends Object {
 				}
 								
 				//$this->blank = $this->hexColorToIdentifier($this->backgroundColorHex);
-				$this->cropimage(1,1,$this->tileSize, $this->tileSize);
+				$this->cropimage($this->offsetX,$this->offsetY,$this->tileSize, $this->tileSize);
 		        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
+				header('Content-type: image/gif');
 		        imagegif($this->im);
 		        imagedestroy($this->im);
 		}
@@ -348,21 +350,36 @@ class TileRenderer extends Object {
 		if ($thick == 1) {
 	        return imageline($image, $x1, $y1, $x2, $y2, $color);
 	    }
-	    $t = $thick / 2 - 0.5;
 
-	    if ($x1 == $x2 || $y1 == $y2) {
-	        return imagefilledrectangle($image, round(min($x1, $x2) - $t), round(min($y1, $y2) - $t), round(max($x1, $x2) + $t), round(max($y1, $y2) + $t), $color);
-	    }
-	    $k = ($y2 - $y1) / ($x2 - $x1); //y = kx + q
-	    $a = $t / sqrt(1 + pow($k, 2));
+		// Get the length of the ilne
+		$xdelta = $x2 - $x1;
+		$ydelta = $y2 - $y1;
+		$length = sqrt($ydelta*$ydelta + $xdelta*$xdelta);
+		
+		// We're doing a point; pick something arbitrary
+		if($length == 0) {
+			$xstep = $thick/2;
+			$ystep = 0;			
+		} else {
+			$xstep = round($xdelta*$thick/$length/2);
+			$ystep = round($ydelta*$thick/$length/2);
+		}
+
+		// The points make a 6 pointed shape around the line: <====>
 	    $points = array(
-	        round($x1 - (1+$k)*$a), round($y1 + (1-$k)*$a),
-	        round($x1 - (1-$k)*$a), round($y1 - (1+$k)*$a),
-	        round($x2 + (1+$k)*$a), round($y2 - (1-$k)*$a),
-	        round($x2 + (1-$k)*$a), round($y2 + (1+$k)*$a),
+			// 3 points around x1,y1: The "<" in the diagram
+			$x1 + $ystep, $y1 - $xstep,
+			$x1 - $xstep, $y1 - $ystep,
+			$x1 - $ystep, $y1 + $xstep,
+			
+			// 3 points around x2,y2: The ">" in the diagram
+			$x2 - $ystep, $y2 + $xstep,
+			$x2 + $xstep, $y2 + $ystep,
+			$x2 + $ystep, $y2 - $xstep,
 	    );
-	    imagefilledpolygon($image, $points, 4, $color);
-	    return imagepolygon($image, $points, 4, $color);
+		
+	    imagefilledpolygon($image, $points, 6, $color);
+	    return imagepolygon($image, $points, 6, $color);
 	}
 	
 }
