@@ -229,9 +229,14 @@ class TileRenderer extends Object {
 				//$this->blank = $this->hexColorToIdentifier($this->backgroundColorHex);
 				$this->cropimage($this->offsetX,$this->offsetY,$this->tileSize, $this->tileSize);
 		        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
-				//Debug::show($this->colors[$this->backgroundColorHex]);
-				header('Content-type: image/gif');
-		        imagegif($this->im);
+
+				if($this->extension == 'png') {
+					header('Content-type: image/png');
+			        imagepng($this->im);
+				} else {
+					header('Content-type: image/gif');
+			        imagegif($this->im);
+				}
 		        imagedestroy($this->im);
 		}
 
@@ -365,11 +370,21 @@ class TileRenderer extends Object {
 		
 		// We're doing a point; pick something arbitrary
 		if($length == 0) {
-			$xstep = $thick/2;
-			$ystep = 0;			
+			$step = floor($thick/2);
+			$points = array(
+				$x1 - $step, $y1,
+				$x1, $y1 + $step,
+				$x1 + $step, $y1,
+				$x1, $y1 - $step
+			);
+
+		    return imagefilledpolygon($image, $points, 4, $color);
+
 		} else {
-			$xstep = round($xdelta*$thick/$length/2);
-			$ystep = round($ydelta*$thick/$length/2);
+			$xstep = $xdelta*$thick/$length/2;
+			$ystep = $ydelta*$thick/$length/2;
+			if($xstep < 0) $xstep = ceil($xstep); else $xstep = floor($xstep);
+			if($ystep < 0) $ystep = ceil($ystep); else $ystep = floor($ystep);
 		}
 
 		// The points make a 6 pointed shape around the line: <====>
@@ -385,8 +400,7 @@ class TileRenderer extends Object {
 			$x2 + $ystep, $y2 - $xstep,
 	    );
 		
-	    imagefilledpolygon($image, $points, 6, $color);
-	    return imagepolygon($image, $points, 6, $color);
+	    return imagefilledpolygon($image, $points, 6, $color);
 	}
 	
 }
