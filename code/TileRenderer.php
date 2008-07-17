@@ -229,6 +229,7 @@ class TileRenderer extends Object {
 				//$this->blank = $this->hexColorToIdentifier($this->backgroundColorHex);
 				$this->cropimage($this->offsetX,$this->offsetY,$this->tileSize, $this->tileSize);
 		        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
+				//Debug::show($this->colors[$this->backgroundColorHex]);
 				header('Content-type: image/gif');
 		        imagegif($this->im);
 		        imagedestroy($this->im);
@@ -248,9 +249,15 @@ class TileRenderer extends Object {
 	 * Crop the internal image to the given region
 	 */
 	protected function cropimage($x, $y, $w, $h) {
-		$im2 = imagecreate($w, $h);
-		imagecopy($im2, $this->im, 0,0, $x, $y, $w, $h);
-		$this->im = $im2;
+		$oldImage = $this->im;
+		$this->im = imagecreate($w, $h);
+
+		// Reallocate the palette in the image before copying content in.  This is important to ensure that transparency works
+		foreach($this->colors as $hex => $code) {
+			$this->colors[$hex] = $this->hexColorToIdentifier($hex);
+		}
+
+		imagecopy($this->im, $oldImage, 0,0, $x, $y, $w, $h);
 	}
 	
 	protected function getFilename() {
