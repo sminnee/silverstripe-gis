@@ -110,7 +110,7 @@ class TileRenderer extends Object {
 	public static $defaut_point_diameter = 5;
 	
 	public function init() {
-		ini_set('memory_limit', '512M');
+		ini_set('memory_limit', '1024M');
 
 		// These update the render to render everything down and to the right by 1 pxel, so that we can crop without mucking up the layout of the map
 		$this->offsetX = 2;
