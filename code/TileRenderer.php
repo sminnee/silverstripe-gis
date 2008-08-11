@@ -154,6 +154,11 @@ class TileRenderer extends Object {
 		$this->zoom = $spec['zoom'];
 		$this->extension = $spec['extension'];
 		
+		if($this->extension == 'png') {
+			$this->tileSize *= 2;
+			self::$default_polyline_thickness *= 2;
+		}
+		
 		if(!in_array($this->extension, $this->allowedExtensions)) {
 			user_error('TileRenderer->renderByFilename() - Wrong extension', E_USER_ERROR);
 		}
@@ -227,13 +232,16 @@ class TileRenderer extends Object {
 				}
 								
 				//$this->blank = $this->hexColorToIdentifier($this->backgroundColorHex);
-				$this->cropimage($this->offsetX,$this->offsetY,$this->tileSize, $this->tileSize);
-		        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
-
 				if($this->extension == 'png') {
+					$this->cropimage($this->offsetX,$this->offsetY,$this->tileSize, $this->tileSize, 0.5);
+			        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
+
 					header('Content-type: image/png');
 			        imagepng($this->im);
 				} else {
+					$this->cropimage($this->offsetX,$this->offsetY,$this->tileSize, $this->tileSize);
+			        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
+
 					header('Content-type: image/gif');
 			        imagegif($this->im);
 				}
@@ -253,16 +261,24 @@ class TileRenderer extends Object {
 	/**
 	 * Crop the internal image to the given region
 	 */
-	protected function cropimage($x, $y, $w, $h) {
+	protected function cropimage($x, $y, $w, $h, $ratio = 1) {
 		$oldImage = $this->im;
-		$this->im = imagecreate($w, $h);
+		if($ratio == 1) {
+			$this->im = imagecreate($w, $h);
+		} else {
+			$this->im = imagecreatetruecolor($w * $ratio, $h * $ratio);
+		}
 
 		// Reallocate the palette in the image before copying content in.  This is important to ensure that transparency works
 		foreach($this->colors as $hex => $code) {
 			$this->colors[$hex] = $this->hexColorToIdentifier($hex);
 		}
-
-		imagecopy($this->im, $oldImage, 0,0, $x, $y, $w, $h);
+		
+		if($ratio == 1) {
+			imagecopy($this->im, $oldImage, 0,0, $x, $y, $w, $h);
+		} else {
+			imagecopyresampled($this->im, $oldImage, 0,0, $x, $y, $w * $ratio, $h * $ratio, $w, $h);
+		}
 	}
 	
 	protected function getFilename() {
