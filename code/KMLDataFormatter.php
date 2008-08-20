@@ -28,7 +28,7 @@ class KMLDataFormatter extends DataFormatter {
 	
 	public function convertDataObject(DataObjectInterface $obj) {
 		Controller::curr()->getResponse()->addHeader("Content-type", "application/vnd.google-earth.kml+xml");
-		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<kml xmlns=\"http://earth.google.com/kml/2.2\">" 
+		return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<kml xmlns=\"http://www.opengis.net/kml/2.2\">" 
 			. $this->convertDataObjectWithoutHeader($obj);
 	}
 		
