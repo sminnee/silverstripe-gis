@@ -4,7 +4,7 @@
  */
 class GeoPointTest extends SapphireTest {
 	
-	static $fixture_file = false;
+	static $fixture_file = "gis/tests/GeoPointTest.yml";
 
 	function testSettingMultiValueDBFieldViaObject() {
 		/* When you set a field to a DBField object, the name should be set automatically. */
