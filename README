@@ -1,18 +1,26 @@
-------------------------------
+###############################################
 GIS (Geospatial Information System) Module
-------------------------------
+###############################################
 
-April 2008
+Maintainer Contact
+-----------------------------------------------
+Sean Harvey (Nickname: sharvey, halkyon)
+<sean (at) silverstripe (dot) com>
 
-REQUIREMENTS
-------------
+Requirements
+-----------------------------------------------
 At least SilverStripe 2.3
 
-DOCUMENTATION
--------------
+Documentation
+-----------------------------------------------
 http://doc.silverstripe.com/doku.php?id=modules:gis
 
-INSTALL
--------
-
+Installation Instructions
+-----------------------------------------------
 1) Copy the modules directory into your SilverStripe webroot
+
+Usage Overview
+-----------------------------------------------
+
+Known issues
+-----------------------------------------------
