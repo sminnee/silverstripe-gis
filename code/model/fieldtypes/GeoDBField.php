@@ -82,6 +82,7 @@ class GeoDBField extends DBField implements CompositeDBField {
 	 * @param string $wktString
 	 */
 	public function setAsWKT($wktString) {
+		$wktString = preg_replace("/GeomFromText\('(.*)'\)\$/i","\\1",$wktString);
 		$this->wkt = $wktString;
 		$this->isChanged = true;
 	}
