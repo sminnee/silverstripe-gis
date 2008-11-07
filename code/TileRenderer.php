@@ -207,7 +207,7 @@ class TileRenderer extends Object {
 	protected function render() {
 		ob_start(); // capture the output
 
-		if (!$this->debug && !count($this->polygons) && !count($this->polylines) && !count($this->points)) {
+		if (!$this->debug && !count($this->debugPolygonCount) && !count($this->debugPolylineCount) && !count($this->debugPointCount)) {
 			readfile(Director::baseFolder() . '/' . $this->emptyFilePath);
 		} else {
 				
