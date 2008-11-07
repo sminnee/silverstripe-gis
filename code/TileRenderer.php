@@ -4,23 +4,24 @@
  *
  * <example>
  * 	class MyController extends Controller {
-		public function gettile($request) {
-			$tile = $request->getVar('tile');
-			$renderer = new TileRenderer();
-		
-			// MyShape $db = array('MyPolyline' => 'Polyline')
-			$shapes = DataObject::get('MyShape');
-			foreach($shapes as $shape) {
-				$renderer->addPolyline(
-					$shape->MyPolyline->getPoints(),
-					array('color' => '#FF00FF')
-				);
-			}
-		
-			header('Content-type: image/gif');
-			return $renderer->renderByFilename($tile);
-		}
-	}
+ *	public function gettile($request) {
+ *		// 'tile' format: <category>/<pixelX>-<pixelY>-<zoom>.<extension>
+ * 		$tile = $request->getVar('tile');
+ *		$renderer = new TileRenderer($tile);
+ *	
+ *		// MyShape $db = array('MyPolyline' => 'Polyline')
+ *		$shapes = DataObject::get('MyShape');
+ *		foreach($shapes as $shape) {
+ *			$renderer->addPolyline(
+ *				$shape->MyPolyline->getPoints(),
+ *				array('color' => '#FF00FF')
+ *			);
+ *		}
+ *	
+ *		header('Content-type: image/gif');
+ *		return $renderer->render();
+ *	}
+ * }
  * </example>
  * 
  * For effective clientside caching, we use Apache's mod_rewrite
@@ -109,12 +110,21 @@ class TileRenderer extends Object {
 	
 	public static $defaut_point_diameter = 5;
 	
-	public function __construct() {
+	/**
+	 * @param int $pixelX
+	 * @param int $pixelY
+	 * @param int $zoom
+	 */
+	public function __construct($pixelX = null, $pixelY = null, $zoom = null) {
 		ini_set('memory_limit', '1024M');
 
 		// These update the render to render everything down and to the right by 1 pxel, so that we can crop without mucking up the layout of the map
 		$this->offsetX = 2;
 		$this->offsetY = 2;
+		
+		$this->pixelX = $pixelX;
+		$this->pixelY = $pixelY;
+		$this->zoom = $zoom;
 		
 		// We over-render a pixel line on all sides to side-step bugs in imagefilledpolygon
 		$this->im = imagecreate($this->tileSize + ($this->offsetX*2), $this->tileSize + ($this->offsetY*2));
@@ -148,28 +158,7 @@ class TileRenderer extends Object {
 		$this->debugPointCount++;
 	}
 	
-	public function renderByFilename($filename) {
-		$spec = $this->parseFilename($filename);
-		
-		$this->categoryID = (isset($spec['categoryID'])) ? $spec['categoryID'] : null;
-		$this->pixelX = $spec['pixelX'];
-		$this->pixelY = $spec['pixelY'];
-		$this->zoom = $spec['zoom'];
-		$this->extension = $spec['extension'];
-		
-		if($this->extension == 'png') {
-			$this->tileSize *= 2;
-			self::$default_polyline_thickness *= 2;
-		}
-		
-		if(!in_array($this->extension, $this->allowedExtensions)) {
-			user_error('TileRenderer->renderByFilename() - Wrong extension', E_USER_ERROR);
-		}
-		
-		return $this->render();
-	}
-	
-	public function parseFilename($filename) {
+	public static function parse_filename($filename) {
 		$spec = array();
 		
 		$regexWithCategory = '/^([\d]+)\/([\d]+)-([\d]+)-([\d]+)\.(png|gif)$/';
@@ -189,22 +178,13 @@ class TileRenderer extends Object {
 			$spec['zoom'] = (int)$result[3];
 			$spec['extension'] = basename($result[4]);
 		} else {
-			user_error('TileRenderer->renderByFilename() - Wrong format', E_USER_ERROR);
+			user_error('TileRenderer::parse_filename- Wrong format', E_USER_ERROR);
 		}
 		
 		return $spec;
 	}
 	
-	public function renderByBounds($pixelX, $pixelY, $zoom, $categoryID = null) {
-		$this->pixelX = $pixelX;
-		$this->pixelY = $pixelY;
-		$this->zoom = $zoom;
-		$this->categoryID = $categoryID;
-		
-		return $this->render();
-	}
-	
-	protected function render() {
+	public function render() {
 		ob_start(); // capture the output
 
 		if (!$this->debug && !count($this->debugPolygonCount) && !count($this->debugPolylineCount) && !count($this->debugPointCount)) {
@@ -281,6 +261,34 @@ class TileRenderer extends Object {
 		}
 	}
 	
+	/**
+	 * @todo Will increase the tile-size for every call
+	 */
+	public function setExtension($ext) {
+		if($this->extension == 'png') {
+			$this->tileSize *= 2;
+			self::$default_polyline_thickness *= 2;
+		}
+
+		if(!in_array($this->extension, $this->allowedExtensions)) {
+			user_error('TileRenderer->renderByFilename() - Wrong extension', E_USER_ERROR);
+		}
+		
+		$this->extension = $ext;
+	}
+	
+	public function getExtension() {
+		return $this->extension;
+	}
+	
+	public function setCategoryID($id) {
+		$this->categoryID = $id;
+	}
+	
+	public function getCategoryID() {
+		return $this->categoryID;
+	}
+	
 	protected function drawPolygon($polygon){
 		$hexColor = $polygon['spec']['color'];
 		if(!isset($this->colors[$hexColor])) {
@@ -297,7 +305,7 @@ class TileRenderer extends Object {
 	protected function drawPolyline($polyline) {
 		$pointlist = $this->lngLatToPixels($polyline['data']);
 		$points = array_chunk($pointlist, 2);
-		
+
 		$hexColor = $polyline['spec']['color'];
 		if(!isset($this->colors[$hexColor])) {
 			$this->colors[$hexColor] = $this->hexColorToIdentifier($hexColor);
