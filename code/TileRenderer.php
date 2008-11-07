@@ -79,11 +79,11 @@ class TileRenderer extends Object {
 	 */
 	protected $im;
 	
-	protected $polygons = array();
+	protected $debugPolygonCount = 0;
 	
-	protected $polylines = array();
+	protected $debugPolylineCount = 0;
 	
-	protected $points = array();
+	protected $debugPointCount = 0;
 	
 	protected $zoom;
 	
@@ -109,7 +109,7 @@ class TileRenderer extends Object {
 	
 	public static $defaut_point_diameter = 5;
 	
-	public function init() {
+	public function __construct() {
 		ini_set('memory_limit', '1024M');
 
 		// These update the render to render everything down and to the right by 1 pxel, so that we can crop without mucking up the layout of the map
@@ -125,24 +125,27 @@ class TileRenderer extends Object {
 	}
 	
 	public function addPolygon($points, $spec = null) {
-		$this->polygons[] = array(
+		$this->drawPolygon(array(
 			'data' => $points,
 			'spec' => array_merge($this->defaultSpec, (array)$spec)
-		);
+		));
+		$this->debugPolygonCount++;
 	}
 	
 	public function addPolyline($points, $spec = null) {
-		$this->polylines[] = array(
+		$this->drawPolyline(array(
 			'data' => $points,
 			'spec' => array_merge($this->defaultSpec, (array)$spec)
-		);
+		));
+		$this->debugPolylineCount++;
 	}
 	
 	public function addPoint($point, $spec = null) {
-		$this->points[] = array(
+		$this->drawPoint(array(
 			'data' => $point,
 			'spec' => array_merge($this->defaultSpec, (array)$spec)
-		);
+		));
+		$this->debugPointCount++;
 	}
 	
 	public function renderByFilename($filename) {
@@ -202,32 +205,17 @@ class TileRenderer extends Object {
 	}
 	
 	protected function render() {
-		$this->init();
-
 		ob_start(); // capture the output
 
 		if (!$this->debug && !count($this->polygons) && !count($this->polylines) && !count($this->points)) {
 			readfile(Director::baseFolder() . '/' . $this->emptyFilePath);
 		} else {
-
-				// render all polygons
-				$i = 0;
-		        foreach($this->polygons as $polygon) {
-					$this->drawPolygon($polygon);			
-					$i++;
-				}	
-		
-				// render all polylines
-				foreach($this->polylines as $polyline) $this->drawPolyline($polyline);
-				
-				// render all points
-				foreach($this->points as $point) $this->drawPoint($point);
 				
 				if($this->debug) {
 					$textcolor = imagecolorallocate($this->im, 0, 0, 0);
-					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-30, count($this->polygons) . " polygons", $textcolor);
-					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-20, count($this->polylines) . " polylines", $textcolor);
-					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-10, count($this->points) . " points", $textcolor);
+					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-30, $this->debugPolygonCount . " polygons", $textcolor);
+					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-20, $this->debugPolylineCount . " polylines", $textcolor);
+					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-10, $this->debugPointCount . " points", $textcolor);
 					imagestring($this->im, 3, $this->tileSize/2-50, $this->tileSize/2-0, "Tile: {$this->pixelX}-{$this->pixelY}-{$this->zoom}", $textcolor);
 				}
 								
