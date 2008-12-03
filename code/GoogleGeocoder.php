@@ -45,7 +45,7 @@ class GoogleGeocoder {
 				// Format: Longitude, Latitude, Altitude
 				$lat = $coordinatesSplit[1];
 				$lng = $coordinatesSplit[0];
-				return GeoPoint::from_x_y($lat, $lng);
+				return GeoPoint::from_x_y($lng, $lat);
 
 		    } else if (strcmp($status, "620") == 0) {
 				// sent geocodes too fast
