@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @package gis
+ */
 class GoogleMapUtility {
     static $TILE_SIZE = 256;
 
@@ -84,8 +86,56 @@ class GoogleMapUtility {
             (int)($normalised->y * $scale)
         );
     }
+
+	static function originShift() {
+		return 2 * pi() * 6378137 / 2;
+	}
+	
+	static function initialResolution() {
+		return 2 * pi() * 6378137 / self::$TILE_SIZE;
+	}
+
+	static function latLonToMeters($lat, $lng) {
+		$mx = $lng * self::originShift() / 180;
+		$my = log( tan((90 + $lat) * pi() / 360.0 )) / (pi() / 180);
+		$my = $my * self::originShift() / 180;
+		return new GoogleMapPoint($mx, $my);
+	}
+	
+	static function metersToLatLon($mx, $my) {
+		$lng = ($mx / self::originShift()) * 180.0;
+		$lat = ($my / self::originShift()) * 180.0;
+
+		$lat = 180 / pi() * (2 * atan( exp( lat * pi() / 180.0)) - pi() / 2.0);
+		return new GoogleMapPoint($lat, $lng);
+	}
+	
+	static function metersToTile($mx, $my, $zoom) {
+		$p = self::metersToPixels($mx, $my, $zoom);
+		return self::pixelsToTile($p->x, $p->y);
+	}
+	
+	static function metersToPixels($mx, $my, $zoom) {
+		$res = self::resolution($zoom);
+		$px = ($mx + self::originShift()) / $res;
+		$py = ($my + self::originShift()) / $res;
+		return new GoogleMapPoint($px, $py);
+	}
+	
+	static function pixelsToTile($px, $py) {
+		$tx = (int)ceil( $px / (float)self::$TILE_SIZE ) - 1;
+		$ty = (int)ceil( $py / (float)self::$TILE_SIZE ) - 1;
+		return new GoogleMapPoint($tx, $ty);
+	}
+	
+	static function resolution($zoom) {
+		return self::initialResolution() / pow(2, $zoom);
+	}
 }
 
+/**
+ * @package gis
+ */
 class GoogleMapPoint {
      public $x,$y;
      function __construct($x,$y) {
@@ -98,6 +148,9 @@ class GoogleMapPoint {
      }
 }
 
+/**
+ * @package gis
+ */
 class GoogleMapBoundary {
      public $x,$y,$width,$height;
      function __construct($x,$y,$width,$height) {
@@ -106,9 +159,52 @@ class GoogleMapBoundary {
           $this->width = $width;
           $this->height = $height;
      }
+
+	function x1() {
+		return $this->x;
+	}
+	
+	function y1() {
+		return $this->y;
+	}
+	
+	function x2() {
+		return $this->x + $this->width;
+	}
+	
+	function y2() {
+		return $this->y + $this->height;
+	}
      function __toString() {
           return "({$this->x},{$this->y},{$this->width},{$this->height})";
      }
+}
+
+/**
+ * @package gis
+ */
+class GoogleMapTile {
+	
+	public static $minZoom = 1;
+
+	public static $maxZoom = 18;
+	
+	public $x;
+	
+	public $y;
+	
+	public $zoom;
+	
+	function __construct($x,$y, $zoom) {
+		$this->x = $x;
+		$this->y = $y;
+		$this->zoom = $zoom;
+     }
+
+	static function create_from_tms_tile($tx, $ty, $zoom) {
+		return new GoogleMapTile($tx, ((pow(2, $zoom ) -1) - $ty), $zoom);
+	}
+
 }
 
 ?>

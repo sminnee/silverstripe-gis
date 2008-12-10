@@ -1,6 +1,9 @@
 <?php
 /**
  * Renders Google Maps compatible tiles.
+ * Can be used to render tiles "on the fly" from Google Maps
+ * requests, but also for batch rendering by a system process
+ * (see {@link TileRenderQueue} for details).
  *
  * <example>
  * 	class MyController extends Controller {
@@ -36,6 +39,7 @@
  * 
  * @author Ingo Schommer, Silverstripe Ltd. (<firstname> at silverstripe dot com)
  * 
+ * @see TileRenderQueue
  * @todo Make $categoryID optional
  * @todo Support for rendering more than one layer in different colors
  * @todo Support for rendering points
@@ -43,7 +47,7 @@
  */
 class TileRenderer extends Object {
 
-	public $cacheBaseDir = 'cache/';
+	public $cacheBaseDir = 'cache';
 	
 	public $emptyFilePath = 'gis/images/emptytile.gif';
 	
@@ -184,7 +188,14 @@ class TileRenderer extends Object {
 		return $spec;
 	}
 	
-	public function render() {
+	/**
+	 * Use {@link $outputToClient} to control wether the file's binary stream
+	 * is returned by this method, in preparation of being echoed to the client.
+	 * 
+	 * @param boolean $outputToClient 
+	 * @return string|boolean Either the file's binary stream, or status
+	 */
+	public function render($outputToClient = true) {
 		ob_start(); // capture the output
 
 		if (!$this->debug && !count($this->debugPolygonCount) && !count($this->debugPolylineCount) && !count($this->debugPointCount)) {
@@ -204,13 +215,13 @@ class TileRenderer extends Object {
 					$this->cropimage($this->offsetX,$this->offsetY,$this->tileSize, $this->tileSize, 0.5);
 			        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
 
-					header('Content-type: image/png');
+					if($outputToClient) header('Content-type: image/png');
 			        imagepng($this->im);
 				} else {
 					$this->cropimage($this->offsetX,$this->offsetY,$this->tileSize, $this->tileSize);
 			        imagecolortransparent($this->im, $this->colors[$this->backgroundColorHex]);
 
-					header('Content-type: image/gif');
+					if($outputToClient) header('Content-type: image/gif');
 			        imagegif($this->im);
 				}
 		        imagedestroy($this->im);
@@ -220,10 +231,10 @@ class TileRenderer extends Object {
 
 		if($this->cacheTiles) {
 			Filesystem::makeFolder($this->getAbsoluteCachePath());
-			file_put_contents($this->getAbsoluteCachePath() . "/" . $this->getFilename(), $imagedata);
+			file_put_contents($this->getAbsoluteCachePath() . $this->getFilename(), $imagedata);
 		}
 		
-		return $imagedata;
+		return ($outputToClient) ? $imagedata : true;
 	}
 	
 	/**
@@ -249,15 +260,45 @@ class TileRenderer extends Object {
 		}
 	}
 	
-	protected function getFilename() {
-		return "{$this->pixelX}-{$this->pixelY}-{$this->zoom}.{$this->extension}";
+	public function getFilename($pixelX = null, $pixelY = null, $zoom = null, $extension = null, $categoryID = null) {
+		return self::get_filename(
+			($pixelX) ? $pixelX : $this->pixelX,
+			($pixelY) ? $pixelY : $this->pixelY, 
+			($zoom) ? $zoom : $this->zoom, 
+			($extension) ? $extension : $this->extension
+		);
 	}
 	
-	protected function getAbsoluteCachePath() {
+	public static function get_filename($pixelX, $pixelY, $zoom, $extension) {
+		return "{$pixelX}-{$pixelY}-{$zoom}.{$extension}";
+	}
+	
+	/**
+	 * @return string Absolute path to cache folder
+	 */
+	public function getAbsoluteCachePath() {
+		return Director::baseFolder() . '/' . $this->getRelativeCachePath() . '/';
+	}
+	
+	/**
+	 * @return string Relative path to cache folder
+	 */
+	public function getRelativeCachePath() {
 		if($this->categoryID) {
-			return Director::baseFolder() . '/' . $this->cacheBaseDir . '/' . $this->categoryID . '/';
+			return $this->cacheBaseDir . '/' . $this->categoryID . '/';
 		} else {
-			return Director::baseFolder() . '/' . $this->cacheBaseDir . '/';
+			return $this->cacheBaseDir . '/';
+		}
+	}
+	
+	/**
+	 * @return string Return path to the tile relative to the cache directory.
+	 */
+	function getRelativeTilePath() {
+		if($this->categoryID) {
+			return $this->categoryID . '/';
+		} else {
+			return '';
 		}
 	}
 	
