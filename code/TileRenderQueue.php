@@ -198,7 +198,6 @@ HTML;
 			$queueItem->write();
 			Debug::message("Processing tile '{$queueItem->URL}'");
 			$response = Director::test(sprintf($this->renderBaseURL, $queueItem->URL));
-			var_dump($response->getStatusCode());
 			if($response->getStatusCode() > 200) {
 				Debug::message("Error processing tile '{$queueItem->URL}");
 			} else {
