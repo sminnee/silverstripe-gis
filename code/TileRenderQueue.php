@@ -19,7 +19,7 @@ class TileRenderQueue extends DataObject {
 	);
 	
 	static $indexes = array(
-		'URL' => true,
+		"URLSearchFields" => "fulltext (URL)",
 		'Status' => true,
 	);
 	

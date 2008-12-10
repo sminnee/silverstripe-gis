@@ -136,6 +136,8 @@ class TileRenderer extends Object {
 		// needs to be a unique reference for later transparency allocation
 		$this->colors[$this->backgroundColorHex] = $this->hexColorToIdentifier($this->backgroundColorHex);
         imagefilledrectangle($this->im, 0, 0, $this->tileSize, $this->tileSize, $this->colors[$this->backgroundColorHex]);
+
+		parent::__construct();
 	}
 	
 	public function addPolygon($points, $spec = null) {
