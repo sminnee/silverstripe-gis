@@ -137,8 +137,7 @@ class TileRenderQueue_Controller extends Controller {
 	
 	function init() {
 		parent::init();
-		
-		if(!Permission::check('ADMIN')) {
+		if(!Permission::check('ADMIN') && !Director::is_cli()) {
 			return Security::permissionFailure($this);
 		}
 	}
