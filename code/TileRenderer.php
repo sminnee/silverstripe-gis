@@ -37,6 +37,11 @@
  * RewriteRule (.*) <relative_path_to_script>/?tile=$1 [L]
  * </example>
  * 
+ * You can automatically generate the cache directory including the necessary
+ * Apache directives through TileRenderer::create_cache_dir(). Please ensure
+ * that you have mod_rewrite enabled and allow Apache to change rewrite rules
+ * through .htaccess files.
+ * 
  * @author Ingo Schommer, Silverstripe Ltd. (<firstname> at silverstripe dot com)
  * 
  * @see TileRenderQueue
@@ -456,6 +461,35 @@ class TileRenderer extends Object {
 	    );
 		
 	    return imagefilledpolygon($image, $points, 6, $color);
+	}
+	
+	/**
+	 * Creates the necessary cache directory and containing .htaccess file to redirect
+	 * missing files to the SupplyShape/generatetile URL handler.
+	 * Doesn't overwrite existing filesystem structures if present.
+	 * 
+	 * @param String $dirname Directory name without subdirectories or trailing slash, relative to the webroot. Defaults to 'cache'.
+	 * @return boolean Success of operation - returns FALSE if file couldn't be written.
+	 */
+	public static function create_cache_dir($dirname = 'cache') {
+		$baseFolder = Director::baseFolder() . '/' . basename($dirname);
+		
+		// create directory
+		Filesystem::makeFolder($baseFolder);
+		
+		// create .htaccess (if not existing)
+		$htaccessPath = $baseFolder . '/' . '.htaccess';
+		if(file_exists($htaccessPath)) return true;
+		
+		$htaccessContent = <<<HTACCESS
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule (.*) ../SupplyShape/generatetile/?tile=$1 [L]
+HTACCESS;
+		return (bool)file_put_contents(
+			$htaccessPath,
+			$htaccessContent
+		);
 	}
 	
 }
