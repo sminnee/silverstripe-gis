@@ -125,7 +125,7 @@ class TileRenderer extends Object {
 	 * @param int $zoom
 	 */
 	public function __construct($pixelX = null, $pixelY = null, $zoom = null) {
-		ini_set('memory_limit', '1024M');
+		ini_set('memory_limit', '1500M');
 
 		// These update the render to render everything down and to the right by 1 pxel, so that we can crop without mucking up the layout of the map
 		$this->offsetX = 2;
