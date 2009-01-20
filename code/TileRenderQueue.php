@@ -12,6 +12,16 @@ require_once('../gis/thirdparty/GoogleMapUtility.php');
  * @package gis
  */
 class TileRenderQueue extends DataObject {
+	/**
+	 * Minimum zoom level that is pre-rendered by the TileRenderQueue
+	 */
+	public static $min_zoom = 1;
+
+	/**
+	 * Max zoom level that is pre-rendered by the TileRenderQueue
+	 */
+	public static $max_zoom = 10;
+
 	
 	static $db = array(
 		'URL' => "Text",
@@ -80,7 +90,11 @@ class TileRenderQueue extends DataObject {
 	 * @param int $maxZoom 
 	 * @return array Numeric array of tile urls relative to the cache folder, e.g. array('42/34234-23423-17.gif','42/34234-23424-17.gif');
 	 */
-	static function create_by_boundary($renderer, $lat, $lng, $maxLat, $maxLng, $minZoom = 1, $maxZoom = 18) {
+	static function create_by_boundary($renderer, $lat, $lng, $maxLat, $maxLng, $minZoom = null, $maxZoom = null) {
+		// Defaults from static variables
+		if($minZoom == null) $minZoom = self::$min_zoom;
+		if($maxZoom == null) $maxZoom = self::$max_zoom;
+		
 		$urls = array();
 		
 		// for each zoom level
