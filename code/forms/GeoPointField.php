@@ -1,11 +1,14 @@
 <?php
 /**
  * Manages a {@link GeoPoint} database field.
+ * 
+ * @todo Extend CompositeField interface to allow loading/saving of combined values handled by the subclass implementation.
+ * @todo Perform subfields to readonly in performReadonlyTransformation()
  *
  * @package gis
  */
 class GeoPointField extends FormField {
-	protected $xField, $yField;
+	public $xField, $yField;
 	
 	function __construct($name, $title = null, $value = "", $form = null) {
 		// naming with underscores to prevent values from actually being saved somewhere
@@ -35,10 +38,12 @@ class GeoPointField extends FormField {
 	}
 
 	/**
-	 * Returns a readonly version of this field
+	 * Returns a readonly version of this field.
 	 */
 	function performReadonlyTransformation() {
-		return $this;
+		$clone = clone $this;
+		$clone->setReadonly(true);
+		return $clone;
 	}
 	
 }
