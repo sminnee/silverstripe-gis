@@ -117,7 +117,13 @@ class TileRenderer extends Object {
 	
 	public static $default_polyline_thickness = 3;
 	
-	public static $defaut_point_diameter = 5;
+	public static $defaut_point_diameter = 10;
+	
+	/**
+	 * @param boolean $useFilledPoints
+	 * 
+	 */
+	public $useFilledPoints = false;
 	
 	/**
 	 * @param int $pixelX
@@ -383,7 +389,8 @@ class TileRenderer extends Object {
 			$this->colors[$hexColor] = $this->hexColorToIdentifier($hexColor);
 		}
 		
-		imageellipse(
+		$func = $this->useFilledPoints ? 'imagefilledellipse' : 'imageellipse';
+		$func(
 			$this->im,
 			$pointlist[0],
 			$pointlist[1],
