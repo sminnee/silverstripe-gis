@@ -106,7 +106,7 @@ class GoogleMapUtility {
 		$lng = ($mx / self::originShift()) * 180.0;
 		$lat = ($my / self::originShift()) * 180.0;
 
-		$lat = 180 / pi() * (2 * atan( exp( lat * pi() / 180.0)) - pi() / 2.0);
+		$lat = 180 / pi() * (2 * atan( exp( $lat * pi() / 180.0)) - pi() / 2.0);
 		return new GoogleMapPoint($lat, $lng);
 	}
 	
@@ -120,6 +120,13 @@ class GoogleMapUtility {
 		$px = ($mx + self::originShift()) / $res;
 		$py = ($my + self::originShift()) / $res;
 		return new GoogleMapPoint($px, $py);
+	}
+	
+	static function pixelsToMeters($px, $py, $zoom) {
+		$res = self::resolution($zoom);
+		$mx = $px * $res - self::originShift();
+		$my = $py * $res - self::originShift();
+		return new GoogleMapPoint($mx, $my);
 	}
 	
 	static function pixelsToTile($px, $py) {
