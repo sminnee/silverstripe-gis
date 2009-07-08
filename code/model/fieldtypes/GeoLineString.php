@@ -16,6 +16,12 @@ class GeoLineString extends GeoDBField implements CompositeDBField {
 		DB::requireField($this->tableName, $this->name, "linestring");
 	}
 	
+	public function compositeDatabaseFields() {
+		return array(
+			$this->name => "GeoLineString"
+		);
+	}
+	
 	/**
 	 * Set one or more points as an array,
 	 * containing numeric arrays for each point

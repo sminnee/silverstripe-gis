@@ -9,7 +9,7 @@
  * @param string $name
  * @param string $srid
  */
-class GeoDBField extends DBField implements CompositeDBField {
+abstract class GeoDBField extends DBField implements CompositeDBField {
 	
 	/**
 	 * SRID - Spatial Reference Identifier
@@ -56,7 +56,7 @@ class GeoDBField extends DBField implements CompositeDBField {
 		$query->select[] = "AsText({$this->name}) AS {$this->name}_AsText";
 	}
 	
-	public function setValue($value, $record = null) {
+	public function setValue($value, $record = null, $markChanged = true) {
 		// If we have an enter database record, look inside that
 		// only if the column exists (and we're not dealing with a newly created instance)
 		if($record && isset($record[$this->name . '_AsText'])) {

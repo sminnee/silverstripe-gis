@@ -51,6 +51,12 @@ class GeoPoint extends GeoDBField implements CompositeDBField {
 		DB::requireField($this->tableName, $this->name, "point");
 	}
 	
+	public function compositeDatabaseFields() {
+		return array(
+			$this->name => "GeoPoint"
+		);
+	}
+	
 	function hasValue() {
 		return (is_numeric($this->x) || is_numeric($this->y));
 	}

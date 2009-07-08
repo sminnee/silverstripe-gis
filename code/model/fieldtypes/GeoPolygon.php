@@ -18,6 +18,12 @@ class GeoPolygon extends GeoDBField implements CompositeDBField {
 		DB::requireField($this->tableName, $this->name, "polygon");
 	}
 	
+	public function compositeDatabaseFields() {
+		return array(
+			$this->name => "GeoPolygon"
+		);
+	}
+	
 	/**
 	 * @param array $rings see {@link setAsRings()}
 	 */
