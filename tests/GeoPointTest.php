@@ -5,6 +5,16 @@
 class GeoPointTest extends SapphireTest {
 	
 	static $fixture_file = "gis/tests/GeoPointTest.yml";
+	
+	function testSetValueOnParentClass() {
+		$childObj = new GeoPointTest_ChildObj2();
+		$childObj->ParentPoint = GeoPoint::from_x_y(2,3);
+		$childObj->write();
+		
+		$childObjNew = DataObject::get_by_id('GeoPointTest_ChildObj2', $childObj->ID);
+		$this->assertEquals("GeoPoint", $childObjNew->ParentPoint->class);
+		$this->assertEquals(2, $childObjNew->ParentPoint->X, 'Values are loaded AS_TEXT() from database when property is defined on parent class');
+	}
 
 	function testSettingMultiValueDBFieldViaObject() {
 		/* When you set a field to a DBField object, the name should be set automatically. */
@@ -140,6 +150,7 @@ class GeoPointTest_Obj extends DataObject implements TestOnly {
 class GeoPointTest_BaseObj2 extends DataObject implements TestOnly {
 	static $db = array(
 		"Title" => "Varchar",
+		'ParentPoint' => 'GeoPoint'
 	);
 }
 
@@ -148,4 +159,3 @@ class GeoPointTest_ChildObj2 extends GeoPointTest_BaseObj2 implements TestOnly {
 		"Point" => "GeoPoint",
 	);
 }
-
