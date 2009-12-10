@@ -188,17 +188,21 @@ class TileRenderer extends Object {
 			$spec['pixelY'] = (int)$result[3];
 			$spec['zoom'] = (int)$result[4];
 			$spec['extension'] = basename($result[5]);
+			return $spec;
 		} elseif(preg_match($regexWithoutCategory, $filename, $result)) {
 			$RAW_relativePath = $result[0];
 			$spec['pixelX'] = (int)$result[1];
 			$spec['pixelY'] = (int)$result[2];
 			$spec['zoom'] = (int)$result[3];
 			$spec['extension'] = basename($result[4]);
+			return $spec;
 		} else {
-			user_error('TileRenderer::parse_filename- Wrong format', E_USER_NOTICE);
+			throw new TileRenderer_Exception(sprintf(
+				'TileRenderer::parse_filename - Wrong format: "%s"', 
+				$filename
+			));
+			return false;
 		}
-		
-		return $spec;
 	}
 	
 	/**
@@ -500,4 +504,7 @@ HTACCESS;
 	}
 	
 }
+
+
+class TileRenderer_Exception extends Exception {}
 ?>
