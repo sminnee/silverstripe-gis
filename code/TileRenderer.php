@@ -195,7 +195,7 @@ class TileRenderer extends Object {
 			$spec['zoom'] = (int)$result[3];
 			$spec['extension'] = basename($result[4]);
 		} else {
-			user_error('TileRenderer::parse_filename- Wrong format', E_USER_ERROR);
+			user_error('TileRenderer::parse_filename- Wrong format', E_USER_NOTICE);
 		}
 		
 		return $spec;
