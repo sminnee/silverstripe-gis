@@ -210,14 +210,16 @@ HTML;
 		foreach($queueItems as $queueItem) {
 			$queueItem->Status = 'Processing';
 			$queueItem->write();
-			Debug::message("Processing tile '{$queueItem->URL}'");
+			echo("Processing tile '{$queueItem->URL}'\n");
 			$response = Director::test(sprintf($this->renderBaseURL, $queueItem->URL));
 			if($response->getStatusCode() > 200) {
-				Debug::message("Error processing tile '{$queueItem->URL}");
-			} else {
-				$queueItem->delete();
-				unset($queueItem);
-			}
+				echo("Error processing tile '{$queueItem->URL}\n");
+			} 
+			
+			// Always delete queue item regardless of response code,
+			// to avoid the queue to "get stuck"
+			$queueItem->delete();
+			unset($queueItem);
 		}
 	}
 	
