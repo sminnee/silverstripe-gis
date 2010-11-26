@@ -132,6 +132,7 @@ class TileRenderer extends Object {
 	 */
 	public function __construct($pixelX = null, $pixelY = null, $zoom = null) {
 		ini_set('memory_limit', '1500M');
+		ini_set('max_execution_time', 1200); // 20 minutes, processing can get quite intense
 
 		// These update the render to render everything down and to the right by 1 pxel, so that we can crop without mucking up the layout of the map
 		$this->offsetX = 2;
