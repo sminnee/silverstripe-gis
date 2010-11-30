@@ -1,5 +1,5 @@
 <?php
-require_once('../gis/thirdparty/GoogleMapUtility.php');
+require_once(BASE_PATH . '/gis/thirdparty/GoogleMapUtility.php');
 
 /**
  * Symbolizes a single tile which is queued up for processing.
