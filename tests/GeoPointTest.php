@@ -6,6 +6,12 @@ class GeoPointTest extends SapphireTest {
 	
 	static $fixture_file = "gis/tests/GeoPointTest.yml";
 	
+	protected $extraDataObjects = array(
+		'GeoPointTest_Obj',
+		'GeoPointTest_BaseObj2',
+		'GeoPointTest_ChildObj2'
+	);
+	
 	function testSetValueOnParentClass() {
 		$childObj = new GeoPointTest_ChildObj2();
 		$childObj->ParentPoint = GeoPoint::from_x_y(2,3);

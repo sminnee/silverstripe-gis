@@ -4,6 +4,10 @@
  * @subpackage tests
  */
 class GeoPolygonTest extends SapphireTest {
+	
+	protected $extraDataObjects = array(
+		'GeoPolygonTest_Obj',
+	);
 
 	protected $outerRingArr = array(
 		array(0, 0),
